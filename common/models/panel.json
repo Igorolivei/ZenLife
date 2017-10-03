@@ -1,0 +1,35 @@
+{
+  "name": "Panel",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "type": {
+      "type": "string",
+      "required": true,
+      "default": "Other"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "User",
+      "foreignKey": "userId"
+    },
+    "goals": {
+      "type": "hasMany",
+      "model": "Goal",
+      "foreignKey": ""
+    },
+    "tasks": {
+      "type": "hasMany",
+      "model": "Task",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

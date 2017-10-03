@@ -1,0 +1,12 @@
+{
+  "ZenLife": {
+    "host": "localhost",
+    "port": 27017,
+    "url": "",
+    "database": "ZenLife",
+    "password": "",
+    "name": "ZenLife",
+    "user": "",
+    "connector": "mongodb"
+  }
+}

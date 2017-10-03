@@ -1,0 +1,41 @@
+{
+  "name": "Task",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "coordinates": {
+      "type": "geopoint"
+    },
+    "checkpoints": {
+      "type": [
+        "object"
+      ]
+    },
+    "dueDate": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "User",
+      "foreignKey": "userId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}
