@@ -24,6 +24,18 @@
         "object"
       ]
     },
+    "status": {
+      "type": "string",
+      "required": true,
+      "default": "Pending"
+    },
+    "estimatedDuration": {
+      "type": "number",
+      "required": true
+    },
+    "startsAt": {
+      "type": "date"
+    },
     "dueDate": {
       "type": "date"
     }

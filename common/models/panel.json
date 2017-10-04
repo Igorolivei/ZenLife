@@ -10,6 +10,11 @@
       "type": "string",
       "required": true,
       "default": "Other"
+    },
+    "visibleTime": {
+      "type": [
+        "object"
+      ]
     }
   },
   "validations": [],
