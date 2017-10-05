@@ -7,6 +7,7 @@
 <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.0.js"></script>
 <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
 <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
+<script type="text/javascript" src="/scripts/moment.js"></script>
 </head>
 <body>
     <div class="navbar">
@@ -27,6 +28,7 @@
           </td>
           <td><p><b data-bind="text: title"></b></p><br>
           <small><p data-bind="text: description"><small></p></td>
+          <!--<small><p data-bind="text: id"><small></p></td>-->
           <td>
             <button data-bind="click: $parent.beginChangeStatus" class="btn">Change Status</button>
             <button data-bind="click: $parent.beginEdit" class="btn">Edit</button>
@@ -45,7 +47,7 @@
         <div class="modal-body">
             <form class="form-horizontal">
                 <div class="control-group">
-                    <label class="control-label" for="inputTask">Task</label>
+                    <label class="control-label" for="inputTask">Title</label>
                     <div class="controls">
                         <input data-bind="value: title" type="text" id="inputTask" placeholder="Task title" style="width: 150px;">
                     </div>
@@ -56,6 +58,30 @@
                         <input data-bind="value: description" type="text" id="inputDescription" placeholder="Description" style="width: 300px;">
                     </div>
                 </div>
+                <div class="control-group">
+                    <label class="control-label" for="inputDescription">Location</label>
+                    <div class="controls">
+                        <input data-bind="value: location" type="text" id="inputLocation" placeholder="Location" style="width: 300px;">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="inputDescription">Estimated Duration (in hours)</label>
+                    <div class="controls">
+                        <input data-bind="value: estimatedDuration" type="text" id="inputEstimatedDuration" placeholder="Hours" style="width: 50px;">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="inputStartingTime">Starting Time</label>
+                    <div class="controls">
+                        <input type="datetime-local" data-bind="value: startingTime" id="inputStartingTime" placeholder="Starting Time" style="width: 300px;">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="inputDueDate">Due Date</label>
+                    <div class="controls">
+                        <input type="datetime-local" data-bind="value: dueDate" id="inputDueDate" placeholder="Due Date" style="width: 300px;">
+                    </div>
+                </div>                
             </form>
         </div>
         <div class="modal-footer">
@@ -82,6 +108,30 @@
                         <input data-bind="value: description" type="text" id="inputDescription" placeholder="Description" style="width: 300px;">
                     </div>
                 </div>
+                <div class="control-group">
+                    <label class="control-label" for="inputDescription">Location</label>
+                    <div class="controls">
+                        <input data-bind="value: location" type="text" id="inputLocation" placeholder="Location" style="width: 300px;">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="inputDescription">Estimated Duration (in hours)</label>
+                    <div class="controls">
+                        <input data-bind="value: estimatedDuration" type="text" id="inputEstimatedDuration" placeholder="Hours" style="width: 50px;">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="inputStartingTime">Starting Time</label>
+                    <div class="controls">
+                        <input type="datetime-local" data-bind="value: moment(startingTime()).format('MM/DD/YYYY')" id="inputStartingTime" placeholder="Starting Time" style="width: 300px;">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="inputDueDate">Due Date</label>
+                    <div class="controls">
+                        <input type="datetime-local" data-bind="value: moment(dueDate()).format('MM/DD/YYYY')" id="inputDueDate" placeholder="Due Date" style="width: 300px;">
+                    </div>
+                </div>      
             </form>
         </div>
         <div class="modal-footer">
@@ -142,11 +192,16 @@
         }
         self.add = function(task) {
             self.ajax(self.tasksURI, 'POST', task).done(function(data) {
-                console.log(task);
+                console.log(data);
                 self.tasks.push({
-                    title: ko.observable(data.task.title),
-                    description: ko.observable(data.task.description),
-                    status: ko.observable("Done")
+                    id: ko.observable(data.id),
+                    title: ko.observable(data.title),
+                    description: ko.observable(data.description),
+                    location: ko.observable(data.location),
+                    estimatedDuration: ko.observable(data.estimatedDuration),
+                    startingTime: ko.observable(new Date(data.startingTime)),
+                    dueDate: ko.observable(new Date(data.dueDate)),
+                    status: ko.observable(data.status)
                 });
             });
         }
@@ -156,18 +211,25 @@
             editTaskViewModel.setTask(task);
         }
         self.edit = function(task, data) {
-            self.ajax(self.tasksURI, 'PUT', data).done(function(res) {
-                self.updateTask(task, res.task);
+            self.ajax(self.tasksURI, 'PUT', data).done(function(updatedTask) {
+                self.updateTask(task, updatedTask);
             });
         }
-        self.updateTask = function(task, newTask) {
+        self.updateTask = function(task, updatedTask) {
             var i = self.tasks.indexOf(task);
-            self.tasks()[i].title(newTask.title);
-            self.tasks()[i].description(newTask.description);
+            self.tasks()[i].id(updatedTask.id);
+            self.tasks()[i].title(updatedTask.title);
+            self.tasks()[i].description(updatedTask.description);
+            self.tasks()[i].location(updatedTask.location);
+            self.tasks()[i].estimatedDuration(updatedTask.estimatedDuration);
+            self.tasks()[i].startingTime(new Date(updatedTask.startingTime));
+            self.tasks()[i].dueDate(new Date(updatedTask.dueDate));
+            self.tasks()[i].status(updatedTask.status);
         }
 
         self.remove = function(task) {
-            self.ajax(self.tasksURI, 'DELETE').done(function() {
+            deleteURI = self.tasksURI+"/"+task.id();
+            self.ajax(deleteURI, 'DELETE').done(function() {
                 self.tasks.remove(task);
             });
         }
@@ -176,6 +238,7 @@
             $('#changeStatus').modal('show');
         }
         self.changeStatus = function(task) {
+            console.log(task);
             self.ajax(self.tasksURI, 'PUT', data).done(function(res) {
                 self.updateTask(task, res.task);
             });
@@ -184,9 +247,14 @@
         self.ajax(self.tasksURI, 'GET').done(function(data) {
             for (var i = 0; i < data.length; i++) {
               self.tasks.push({
+                id: ko.observable(data[i].id),
                 title: ko.observable(data[i].title),
                 description: ko.observable(data[i].description),
-                status: ko.observable("Done")
+                location: ko.observable(data[i].location),
+                estimatedDuration: ko.observable(data[i].estimatedDuration),
+                startingTime: ko.observable(new Date(data[i].startingTime)),
+                dueDate: ko.observable(new Date(data[i].dueDate)),
+                status: ko.observable(data[i].status)
               });
             }
         });
@@ -195,42 +263,79 @@
         var self = this;
         self.title = ko.observable();
         self.description = ko.observable();
+        self.location = ko.observable();
+        self.estimatedDuration = ko.observable();
+        self.startingTime = ko.observable();
+        self.dueDate = ko.observable();
+        self.status = ko.observable();
 
         self.addTask = function() {
             $('#add').modal('hide');
             tasksViewModel.add({
                 title: self.title(),
-                description: self.description()
+                description: self.description(),
+                location: self.location(),
+                estimatedDuration: self.estimatedDuration(),
+                startingTime: self.startingTime(),
+                dueDate: self.dueDate(),
+                status: self.status()
             });
             self.title("");
             self.description("");
+            self.location("");
+            self.estimatedDuration("");
+            self.startingTime("");
+            self.dueDate("");
+            self.status("");
         }
     }
     function EditTaskViewModel() {
         var self = this;
+        self.id = ko.observable();
         self.title = ko.observable();
         self.description = ko.observable();
+        self.location = ko.observable();
+        self.estimatedDuration = ko.observable();
+        self.startingTime = ko.observable();
+        self.dueDate = ko.observable();
         self.status = ko.observable();
 
         self.setTask = function(task) {
             self.task = task;
+            self.id(task.id());
             self.title(task.title());
             self.description(task.description());
+            self.location(task.location());
+            self.estimatedDuration(task.estimatedDuration());
+            self.startingTime(task.startingTime());
+            self.dueDate(task.dueDate());
             self.status(task.status());
+
             $('edit').modal('show');
         }
         self.editTask = function() {
             $('#edit').modal('hide');
             tasksViewModel.edit(self.task, {
+                id: self.id(),
                 title: self.title(),
-                description: self.description() 
+                description: self.description(),
+                location: self.location(),
+                estimatedDuration: self.estimatedDuration(),
+                startingTime: new Date(self.startingTime()),
+                dueDate: new Date(self.dueDate()),
+                status: self.status() 
             });
         }
         self.changeStatus = function() {
             $('#changeStatus').modal('hide');
             tasksViewModel.edit(self.task, {
+                id: self.id(),
                 title: self.title(),
-                description: self.description() ,
+                description: self.description(),
+                location: self.location(),
+                estimatedDuration: self.estimatedDuration(),
+                startingTime: self.startingTime(),
+                dueDate: self.dueDate(),
                 status: self.status()
             });
         }
