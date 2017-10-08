@@ -16,12 +16,67 @@
             <a class="brand" href="#">ZenLife</a>
         </div>
     </div>
-    <div id="main" class="container">
+    <div class="container">
         <ul class="nav navbar-nav">
             <li class="active"><a href="tasks.html">Tasks</a></li>
             <!--<li><a href="#about">About</a></li>-->
             <!--<li><a href="#contact">Contact</a></li>-->
         </ul>
     </div>
+    <div id="main"class="container">
+        <table class="table">
+            <tr>
+                <td>
+                    <p>Type</p>
+                </td>
+            </tr>
+            <!-- ko foreach: panels -->
+                <tr>
+                <!-- ko if: $index()%2==0 || $index()==0 -->
+                <p>nova linha</p>
+                <!-- /ko-->
+                    <td>
+                        <p><b data-bind="text: type"></b></p><br>
+                    </td>
+                <!-- ko if: $index()%2!=0 -->
+                <p>fim nova linha</p>
+                <!-- /ko -->
+                </tr>
+            <!--/ko -->
+        </table>
+    </div>
+    <script type="text/javascript">
+    function PanelsViewModel() {
+        var self = this;
+        self.panelsURI = 'http://localhost:3000/api/Panels';
+        self.panels = ko.observableArray();
+
+        self.ajax = function(uri, method, data) {
+            var request = {
+                url: uri,
+                type: method,
+                contentType: "application/json",
+                cache: false,
+                dataType: 'json',
+                data: JSON.stringify(data),
+                error: function(jqXHR) {
+                  console.log("Error " + jqXHR.status);
+                }
+            };
+            return $.ajax(request);
+        }
+
+        self.ajax(self.panelsURI, 'GET').done(function(data) {
+            for (var i = 0; i < data.length; i++) {
+              self.panels.push({
+                id: ko.observable(data[i].id),
+                type: ko.observable(data[i].type)
+              });
+            }
+        });
+    }
+    var panelsViewModel = new PanelsViewModel();
+    ko.applyBindings(panelsViewModel, $('#main')[0]);
+    </script>
 </body>
 </html>

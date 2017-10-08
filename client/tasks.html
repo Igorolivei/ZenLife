@@ -19,20 +19,30 @@
     <div id="main" class="container">
       <h1 class="text-center">Tasks</h1>
       <table class="table table-hover">
-        <tr><td style="width: 1px;"></td><td><b>Task</b></td><td><b>Options</b></td></tr>
+        <tr>
+            <td style="width: 1px;"></td>
+            <td>
+                <b>Task</b>
+            </td>
+            <td>
+                <b>Options</b>
+            </td>
+        </tr>
         <!-- ko foreach: tasks -->
         <tr>
           <td>
-            <!-- ko if: status == 'Done' -->
+            <!-- ko if: status === 'Done' -->
             <span data-bind="visible: status == 'Done'" class="label label-success">Done</span>
             <!-- /ko -->
             <span data-bind="visible: status == 'On Going'" class="label label-important">On Going</span>
             <span data-bind="visible: status == 'Paused'" class="label label-warning">Paused</span>
             <span data-bind="visible: status == 'Pending'" class="label">Pending</span>
           </td>
-          <td><p><b data-bind="text: title"></b></p><br>
-          <small><p data-bind="text: description"><small></p></td>
-          <!--<small><p data-bind="text: id"><small></p></td>-->
+          <td>
+            <p><b data-bind="text: title"></b></p><br>
+            <small><p data-bind="text: description"><small></p>
+            <!--<small><p data-bind="text: id"><small></p></td>-->
+          </td>
           <td>
             <button data-bind="click: $parent.beginChangeStatus" class="btn">Change Status</button>
             <button data-bind="click: $parent.beginEdit" class="btn">Edit</button>
