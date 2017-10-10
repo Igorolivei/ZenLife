@@ -7,15 +7,37 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.2.0.js"></script>
 <script type="text/javascript" src="scripts/moment.js"></script>
 </head>
 <body>
-    <div class="navbar">
-        <div class="navbar-inner">
-            <a class="brand" href="/">ZenLife</a>
+    <div class="container">
+        <div class="jumbotron">
+            <img src="static/zenlife-icon-site.png" class="img-rounded center-block" style="max-width: 15%" alt="Zen Life">
+            <h1 class="text-center">Zen Life</h1> 
+            <p class="text-center">Based on principles of Zen philosophy, Zen Life will help you to manage your personal tasks.</p> 
+            <div class="text-center">
+                <div class="btn-group btn-group-md">
+                    <button class="btn btn-default">
+                        <a href="/">Home</a>
+                    </button>
+                    <button class="btn btn-default">
+                        <a href="tasks.html">Tasks</a>
+                    </button>
+                    <!--<button class="btn btn-default">
+                        <a href="goals.html">Goals</a>
+                    </button>
+                    <button class="btn btn-default">
+                        <a href="panels.html">Panels</a>
+                    </button>-->
+                    <button class="btn btn-default">
+                        <a href="about.html">About</a>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
+
     <div id="main" class="container">
       <h1 class="text-center">Tasks</h1>
       <table class="table table-hover">
@@ -31,12 +53,10 @@
         <!-- ko foreach: tasks -->
         <tr>
           <td>
-            <!-- ko if: status === 'Done' -->
-            <span data-bind="visible: status == 'Done'" class="label label-success">Done</span>
-            <!-- /ko -->
-            <span data-bind="visible: status == 'On Going'" class="label label-important">On Going</span>
-            <span data-bind="visible: status == 'Paused'" class="label label-warning">Paused</span>
-            <span data-bind="visible: status == 'Pending'" class="label">Pending</span>
+            <span data-bind="visible: status() == 'Done'" class="label label-success">Done</span>
+            <span data-bind="visible: status() == 'On Going'" class="label label-warning">On Going</span>
+            <span data-bind="visible: status() == 'Paused'" class="label label-danger">Paused</span>
+            <span data-bind="visible: status() == 'Pending'" class="label label-default">Pending</span>
           </td>
           <td>
             <p><b data-bind="text: title"></b></p><br>
@@ -52,150 +72,123 @@
         <!-- /ko -->
       </table>
       <button data-bind="click: beginAdd" class="btn">Add Task</button>
+      <!--<button data-toggle="modal" data-target="#add" class="btn">Add Task</button>-->
+      
     </div>
-    <div id="add" class="modal hide fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="addDialogLabel">Add Task</h3>
-        </div>
-        <div class="modal-body">
-            <form class="form-horizontal">
-                <div class="control-group">
-                    <label class="control-label" for="inputTask">Title</label>
-                    <div class="controls">
-                        <input data-bind="value: title" type="text" id="inputTask" placeholder="Task title" style="width: 150px;">
-                    </div>
+    <div id="add" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="addDialogLabel">Add Task</h3>
                 </div>
-                <div class="control-group">
-                    <label class="control-label" for="inputDescription">Description</label>
-                    <div class="controls">
-                        <input data-bind="value: description" type="text" id="inputDescription" placeholder="Description" style="width: 300px;">
-                    </div>
+                <div class="modal-body">
+                    <form class="form-group">
+                        <div class="form-group">
+                            <label for="inputTask">Title</label>
+                            <input class="form-control" data-bind="value: title" type="text" id="inputTask" placeholder="Task title" style="width: 150px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDescription">Description</label>
+                            <input class="form-control" data-bind="value: description" type="text" id="inputDescription" placeholder="Description" style="width: 300px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDescription">Location</label>
+                            <input class="form-control" data-bind="value: location" type="text" id="inputLocation" placeholder="Location" style="width: 300px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDescription">Estimated Duration (in hours)</label>
+                            <input class="form-control" data-bind="value: estimatedDuration" type="text" id="inputEstimatedDuration" placeholder="Hours" style="width: 50px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputStartingTime">Starting Time</label>
+                            <input class="form-control" type="datetime-local" data-bind="value: startingTime" id="inputStartingTime" placeholder="Starting Time" style="width: 300px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDueDate">Due Date</label>
+                            <input class="form-control" type="datetime-local" data-bind="value: dueDate" id="inputDueDate" placeholder="Due Date" style="width: 300px;">
+                        </div>                
+                    </form>
                 </div>
-                <div class="control-group">
-                    <label class="control-label" for="inputDescription">Location</label>
-                    <div class="controls">
-                        <input data-bind="value: location" type="text" id="inputLocation" placeholder="Location" style="width: 300px;">
-                    </div>
+                <div class="modal-footer">
+                    <button data-bind="click: addTask" class="btn btn-primary">Add Task</button>
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
                 </div>
-                <div class="control-group">
-                    <label class="control-label" for="inputDescription">Estimated Duration (in hours)</label>
-                    <div class="controls">
-                        <input data-bind="value: estimatedDuration" type="text" id="inputEstimatedDuration" placeholder="Hours" style="width: 50px;">
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="inputStartingTime">Starting Time</label>
-                    <div class="controls">
-                        <input type="datetime-local" data-bind="value: startingTime" id="inputStartingTime" placeholder="Starting Time" style="width: 300px;">
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="inputDueDate">Due Date</label>
-                    <div class="controls">
-                        <input type="datetime-local" data-bind="value: dueDate" id="inputDueDate" placeholder="Due Date" style="width: 300px;">
-                    </div>
-                </div>                
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button data-bind="click: addTask" class="btn btn-primary">Add Task</button>
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            </div>
         </div>
     </div>
-    <div id="edit" class="modal hide fade" tabindex="=1" role="dialog" aria-labelledby="editDialogLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="editDialogLabel">Add Task</h3>
-        </div>
-        <div class="modal-body">
-            <form class="form-horizontal">
-                <div class="control-group">
-                    <label class="control-label" for="inputTask">Task</label>
-                    <div class="controls">
-                        <input data-bind="value: title" type="text" id="inputTask" placeholder="Task title" style="width: 150px;">
-                    </div>
+    <div id="edit" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="editDialogLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="editDialogLabel">Add Task</h3>
                 </div>
-                <div class="control-group">
-                    <label class="control-label" for="inputDescription">Description</label>
-                    <div class="controls">
-                        <input data-bind="value: description" type="text" id="inputDescription" placeholder="Description" style="width: 300px;">
-                    </div>
+                <div class="modal-body">
+                    <form class="form-group">
+                        <div class="form-group">
+                            <label for="inputTask">Task</label>
+                            <input class="form-control" data-bind="value: title" type="text" id="inputTask" placeholder="Task title" style="width: 150px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDescription">Description</label>
+                            <input class="form-control" data-bind="value: description" type="text" id="inputDescription" placeholder="Description" style="width: 300px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDescription">Location</label>
+                            <input class="form-control" data-bind="value: location" type="text" id="inputLocation" placeholder="Location" style="width: 300px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDescription">Estimated Duration (in hours)</label>
+                            <input class="form-control" data-bind="value: estimatedDuration" type="text" id="inputEstimatedDuration" placeholder="Hours" style="width: 50px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputStartingTime">Starting Time</label>
+                            <input class="form-control" type="datetime-local" data-bind="value: startingTime" id="inputStartingTime" placeholder="Starting Time" style="width: 300px;">
+                            <small><p>Current starting time: <span data-bind="text: moment(startingTime()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDueDate">Due Date</label>
+                            <input class="form-control" type="datetime-local" data-bind="value: dueDate" id="inputDueDate" placeholder="Due Date" style="width: 300px;">
+                            <small><p>Current due date: <span data-bind="text: moment(dueDate()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
+                        </div>      
+                    </form>
                 </div>
-                <div class="control-group">
-                    <label class="control-label" for="inputDescription">Location</label>
-                    <div class="controls">
-                        <input data-bind="value: location" type="text" id="inputLocation" placeholder="Location" style="width: 300px;">
-                    </div>
+                <div class="modal-footer">
+                    <button data-bind="click:editTask" class="btn btn-primary">Update Task</button>
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
                 </div>
-                <div class="control-group">
-                    <label class="control-label" for="inputDescription">Estimated Duration (in hours)</label>
-                    <div class="controls">
-                        <input data-bind="value: estimatedDuration" type="text" id="inputEstimatedDuration" placeholder="Hours" style="width: 50px;">
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="inputStartingTime">Starting Time</label>
-                    <div class="controls">
-                        <input type="datetime-local" id="inputStartingTime" placeholder="Starting Time" style="width: 300px;">
-                        <small><p>Current starting time: <span data-bind="text: moment(startingTime()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="inputDueDate">Due Date</label>
-                    <div class="controls">
-                        <input type="datetime-local" id="inputDueDate" placeholder="Due Date" style="width: 300px;">
-                        <small><p>Current due date: <span data-bind="text: moment(dueDate()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
-                    </div>
-                </div>      
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button data-bind="click:editTask" class="btn btn-primary">Update Task</button>
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            </div>
         </div>
     </div>
-    <div id="changeStatus" class="modal hide fade" tabindex="=1" role="dialog" aria-labelledby="changeStatusLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="changeStatusLabel">Change Task Status</h3>
-        </div>
-        <div class="modal-body">
-            <form class="form-horizontal">
-                <div class="control-group">
-                    <label class="control-label" for="status">Status</label>
-                    <div class="controls">
-                        <select data-bind="value: status">
-                            <option value="Pending" selected>Pending</option>
-                            <option value="On Going">On Going</option>
-                            <option value="Paused">Paused</option>
-                            <option value="Done">Done</option>
-                        </select>
-                    </div>
+    <div id="changeStatus" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="changeStatusLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="changeStatusLabel">Change Task Status</h3>
                 </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button data-bind="click:changeStatus" class="btn btn-primary">Update Status</button>
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                <div class="modal-body">
+                    <form class="form-group">
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select class="form-control" data-bind="value: status">
+                                <option value="Pending" selected>Pending</option>
+                                <option value="On Going">On Going</option>
+                                <option value="Paused">Paused</option>
+                                <option value="Done">Done</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button data-bind="click:changeStatus" class="btn btn-primary">Update Status</button>
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                </div>
+            </div>
         </div>
     </div>
     <script type="text/javascript">
-    ko.bindingHandlers.modal = {
-        init: function (element, valueAccessor) {
-            $(element).modal({
-                show: false
-            });
-        },
-        update: function (element, valueAccessor) {
-            var value = valueAccessor();
-            if (ko.utils.unwrapObservable(value)) {
-                $(element).modal('show');
-            } else {
-                $(element).modal('hide');
-            }
-        }
-    }
     function TasksViewModel() {
         var self = this;
         self.tasksURI = 'http://localhost:3000/api/Tasks';
@@ -223,7 +216,6 @@
         }
         self.add = function(task) {
             self.ajax(self.tasksURI, 'POST', task).done(function(data) {
-                console.log(data);
                 self.tasks.push({
                     id: ko.observable(data.id),
                     title: ko.observable(data.title),
@@ -248,7 +240,6 @@
         }
         self.updateTask = function(task, updatedTask) {
             var i = self.tasks.indexOf(task);
-            self.tasks()[i].id(updatedTask.id);
             self.tasks()[i].title(updatedTask.title);
             self.tasks()[i].description(updatedTask.description);
             self.tasks()[i].location(updatedTask.location);
@@ -269,10 +260,11 @@
 
         self.beginChangeStatus = function(task) {
             $('#changeStatus').modal('show');
+            editTaskViewModel.setTask(task);
         }
         self.changeStatus = function(task) {
-            self.ajax(self.tasksURI, 'PUT', data).done(function(res) {
-                self.updateTask(task, res.task);
+            self.ajax(self.tasksURI, 'PUT', data).done(function(updatedTask) {
+                self.updateTask(task, updatedTask);
             });
         }
 
@@ -307,10 +299,10 @@
                 title: self.title(),
                 description: self.description(),
                 location: self.location(),
-                estimatedDuration: self.estimatedDuration(),
-                startingTime: self.startingTime(),
-                dueDate: self.dueDate(),
-                status: self.status()
+                estimatedDuration: self.estimatedDuration() ? self.estimatedDuration() : 0,
+                startingTime: self.startingTime() ? self.startingTime() : null,
+                dueDate: self.dueDate() ? self.dueDate() : null,
+                status: "Pending"
             });
             self.title("");
             self.description("");
@@ -342,8 +334,6 @@
             self.startingTime(task.startingTime());
             self.dueDate(task.dueDate());
             self.status(task.status());
-
-            $('edit').modal('show');
         }
         self.editTask = function() {
             $('#edit').modal('hide');
@@ -353,8 +343,8 @@
                 description: self.description(),
                 location: self.location(),
                 estimatedDuration: self.estimatedDuration(),
-                startingTime: new Date(self.startingTime()),
-                dueDate: new Date(self.dueDate()),
+                startingTime: self.startingTime() ? new Date(self.startingTime()) : null,
+                dueDate: self.dueDate() ? new Date(self.dueDate()) : null,
                 status: self.status() 
             });
         }

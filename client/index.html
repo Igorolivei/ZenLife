@@ -7,32 +7,52 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
 <script type="text/javascript" src="scripts/moment.js"></script>
 </head>
 <body>
-    <div class="navbar">
-        <div class="navbar-inner">
-            <a class="brand" href="#">ZenLife</a>
+    <div class="container">
+        <div class="jumbotron">
+            <img src="static/zenlife-icon-site.png" class="img-rounded center-block" style="max-width: 15%" alt="Zen Life">
+            <h1 class="text-center">Zen Life</h1> 
+            <p class="text-center">Based on principles of Zen philosophy, Zen Life will help you to manage your personal tasks.</p> 
+            <div class="text-center">
+                <div class="btn-group btn-group-md">
+                    <button class="btn btn-default">
+                        <a href="/">Home</a>
+                    </button>
+                    <button class="btn btn-default">
+                        <a href="tasks.html">Tasks</a>
+                    </button>
+                    <!--<button class="btn btn-default">
+                        <a href="goals.html">Goals</a>
+                    </button>
+                    <button class="btn btn-default">
+                        <a href="panels.html">Panels</a>
+                    </button>-->
+                    <button class="btn btn-default">
+                        <a href="about.html">About</a>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="container">
-        <ul class="nav navbar-nav">
-            <li class="active"><a href="tasks.html">Tasks</a></li>
-            <!--<li><a href="#about">About</a></li>-->
-            <!--<li><a href="#contact">Contact</a></li>-->
-        </ul>
-    </div>
-    <div id="main" class="container-fluid">
+
+    <div id="main" class="container">
         <div class="row">
         <!-- ko foreach: panels -->
             <div class="col-md-6">
                 <div class="panel panel-default">
                   <div class="panel-heading">
                     <strong><span data-bind="text: type"></span></strong>
-                    <button type="button" class="btn btn-default btn-xs pull-right">
-                        <span class="glyphicon glyphicon-cog"></span>
-                    </button>
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-default btn-xs">
+                            <span data-bind="click: $parent.beginAddTask" class="glyphicon glyphicon-plus"></span>
+                        </button>
+                        <button type="button" class="btn btn-default btn-xs">
+                            <span data-bind="click: $parent.beginConfigurePanel" class="glyphicon glyphicon-cog"></span>
+                        </button>
+                    </div>
                   </div>
                   <div class="panel-body">List tasks here</div>
                 </div>
@@ -40,11 +60,43 @@
         <!--/ko -->
         </div>
     </div>
+
+    <div id="addTask" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="addDialogLabel">Add Task/Goal to Panel</h3>
+                </div>
+                <div class="modal-body">
+                    <!-- ko foreach: tasks -->
+                    <p data-bind="text: title"></p>
+                    <!-- /ko -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="configurePanel" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="addDialogLabel">Configure Panel</h3>
+                </div>
+                <div class="modal-body">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
     <script type="text/javascript">
     function PanelsViewModel() {
         var self = this;
         self.panelsURI = 'http://localhost:3000/api/Panels';
+        self.tasksURI = 'http://localhost:3000/api/Tasks';
         self.panels = ko.observableArray();
+        self.tasks = ko.observableArray();
 
         self.ajax = function(uri, method, data) {
             var request = {
@@ -61,6 +113,30 @@
             return $.ajax(request);
         }
 
+        self.beginAddTask = function() {
+            self.ajax(self.tasksURI, 'GET').done(function(data) {
+                for (var i = 0; i < data.length; i++) {
+                  self.tasks.push({
+                    id: ko.observable(data[i].id),
+                    title: ko.observable(data[i].title),
+                    description: ko.observable(data[i].description),
+                    location: ko.observable(data[i].location),
+                    estimatedDuration: ko.observable(data[i].estimatedDuration),
+                    startingTime: ko.observable(data[i].startingTime),
+                    dueDate: ko.observable(data[i].dueDate),
+                    status: ko.observable(data[i].status)
+                  });
+                }
+            });
+            editPanelViewModel.setTasks(self.tasks);
+            self.tasks([]);
+            $('#addTask').modal('show');
+        }
+
+        self.beginConfigurePanel = function() {
+            $('#configurePanel').modal('show');
+        }
+
         self.ajax(self.panelsURI, 'GET').done(function(data) {
             for (var i = 0; i < data.length; i++) {
               self.panels.push({
@@ -69,9 +145,34 @@
               });
             }
         });
+
+        self.ajax(self.tasksURI, 'GET').done(function(data) {
+            for (var i = 0; i < data.length; i++) {
+              self.tasks.push({
+                id: ko.observable(data[i].id),
+                title: ko.observable(data[i].title),
+                description: ko.observable(data[i].description),
+                location: ko.observable(data[i].location),
+                estimatedDuration: ko.observable(data[i].estimatedDuration),
+                startingTime: ko.observable(data[i].startingTime),
+                dueDate: ko.observable(data[i].dueDate),
+                status: ko.observable(data[i].status)
+              });
+            }
+        });
+    }
+    function EditPanelViewModel() {
+        var self = this;
+        self.tasks = ko.observableArray();
+
+        self.setTasks = function(tasks) {
+            self.tasks(tasks());
+        }
     }
     var panelsViewModel = new PanelsViewModel();
+    var editPanelViewModel = new EditPanelViewModel();
     ko.applyBindings(panelsViewModel, $('#main')[0]);
+    ko.applyBindings(editPanelViewModel, $('#addTask')[0]);
     </script>
 </body>
 </html>
