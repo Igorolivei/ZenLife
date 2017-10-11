@@ -43,18 +43,28 @@
         <!-- ko foreach: panels -->
             <div class="col-md-6">
                 <div class="panel panel-default">
-                  <div class="panel-heading">
-                    <strong><span data-bind="text: type"></span></strong>
-                    <div class="pull-right">
-                        <button type="button" class="btn btn-default btn-xs">
-                            <span data-bind="click: $parent.beginAddTask" class="glyphicon glyphicon-plus"></span>
-                        </button>
-                        <button type="button" class="btn btn-default btn-xs">
-                            <span data-bind="click: $parent.beginConfigurePanel" class="glyphicon glyphicon-cog"></span>
-                        </button>
+                    <div class="panel-heading">
+                        <strong><span data-bind="text: type"></span></strong>
+                        <div class="pull-right">
+                            <button type="button" data-bind="click: $parent.hidePanel" class="btn btn-default btn-xs">
+                                <span class="glyphicon glyphicon-eye-close"></span>
+                            </button>
+                            <button type="button" data-bind="click: $parent.beginAddTask" class="btn btn-default btn-xs">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                            <button type="button" data-bind="click: $parent.beginConfigurePanel" class="btn btn-default btn-xs">
+                                <span class="glyphicon glyphicon-cog"></span>
+                            </button>
+                        </div>
                     </div>
-                  </div>
-                  <div class="panel-body">List tasks here</div>
+                    <div class="panel-body">
+                        <ul class="list-group">
+                            <li data-bind="visible: !tasks().length > 0" class="list-group-item"><p>Empty panel</p></li>
+                            <!-- ko foreach: tasks -->
+                            <li class="list-group-item"><p data-bind="text: title"></p></li>
+                            <!-- /ko -->
+                        </ul>
+                    </div>
                 </div>
             </div>
         <!--/ko -->
@@ -70,12 +80,47 @@
                 </div>
                 <div class="modal-body">
                     <!-- ko foreach: tasks -->
-                    <p data-bind="text: title"></p>
+                    <div class="clearfix">
+                        <strong><p data-bind="text: title" class="pull-left"></p></strong>
+                        <div class="pull-right">
+                            <button type="button"  data-bind="click: $parent.viewTask" class="btn btn-default btn-xs">
+                                <span class="glyphicon glyphicon-eye-open"></span>
+                            </button>
+                            <button type="button" class="btn btn-default btn-xs">
+                                Add to Panel
+                            </button>
+                        </div>
+                    </div>
                     <!-- /ko -->
                 </div>
             </div>
         </div>
     </div>
+
+    <div id="viewTask" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <span data-bind="visible: status() == 'Done'" class="label label-success pull-left">Done</span>
+                    <span data-bind="visible: status() == 'On Going'" class="label label-warning pull-left">On Going</span>
+                    <span data-bind="visible: status() == 'Paused'" class="label label-danger pull-left">Paused</span>
+                    <span data-bind="visible: status() == 'Pending'" class="label label-default pull-left">Pending</span>
+                    <h1 class="text-center" data-bind="text: title"></h1>
+                </div>
+                <div class="modal-body">
+                    <div class="content">
+                        <h3 data-bind="text: description"></h3>
+                        <small data-bind="visible: location"><p><strong>Location: </strong><span data-bind="text: location"></span></p></small>
+                        <small data-bind="visible: estimatedDuration"><p><strong>Estimated duration: </strong><span data-bind="text: estimatedDuration"></span> hours</p></small>
+                        <small data-bind="visible: startingTime"><p><strong>Starting time: </strong><span data-bind="text: moment(startingTime()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
+                        <small data-bind="visible: dueDate"><p><strong>Due date: </strong><span data-bind="text: moment(dueDate()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <div id="configurePanel" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -133,18 +178,38 @@
             $('#addTask').modal('show');
         }
 
+        self.hidePanel = function(panel) {
+            self.panels.remove(panel);
+        }
+
         self.beginConfigurePanel = function() {
             $('#configurePanel').modal('show');
         }
 
         self.ajax(self.panelsURI, 'GET').done(function(data) {
             for (var i = 0; i < data.length; i++) {
-              self.panels.push({
-                id: ko.observable(data[i].id),
-                type: ko.observable(data[i].type)
-              });
-            }
+                self.panels.push({
+                    id: ko.observable(data[i].id),
+                    tasks: ko.observableArray([]),
+                    type: ko.observable(data[i].type)
+                });
+                self.getPanelTasks(i, data[i].id);
+            }            
         });
+
+        self.getPanelTasks = function(pos, id) {
+            var panelsTasksURI = self.panelsURI+'/'+id+'/Tasks';
+
+            self.ajax(panelsTasksURI, 'GET').done(function(data) {
+                for (var i = 0; i < data.length; i++) {
+                    self.panels()[pos].tasks.push({
+                        id: ko.observable(data[i].id),
+                        title: ko.observable(data[i].title),
+                        description: ko.observable(data[i].description)
+                    });
+                }
+            });          
+        }
 
         self.ajax(self.tasksURI, 'GET').done(function(data) {
             for (var i = 0; i < data.length; i++) {
@@ -164,6 +229,26 @@
     function EditPanelViewModel() {
         var self = this;
         self.tasks = ko.observableArray();
+        self.id = ko.observable();
+        self.title = ko.observable();
+        self.description = ko.observable();
+        self.location = ko.observable();
+        self.estimatedDuration = ko.observable();
+        self.startingTime = ko.observable();
+        self.dueDate = ko.observable();
+        self.status = ko.observable();
+
+        self.viewTask = function(task) {
+            self.id(task.id());
+            self.title(task.title());
+            self.description(task.description());
+            self.location(task.location());
+            self.estimatedDuration(task.estimatedDuration());
+            self.startingTime(task.startingTime());
+            self.dueDate(task.dueDate());
+            self.status(task.status());
+            $('#viewTask').modal('show');   
+        }
 
         self.setTasks = function(tasks) {
             self.tasks(tasks());
@@ -173,6 +258,7 @@
     var editPanelViewModel = new EditPanelViewModel();
     ko.applyBindings(panelsViewModel, $('#main')[0]);
     ko.applyBindings(editPanelViewModel, $('#addTask')[0]);
+    ko.applyBindings(editPanelViewModel, $('#viewTask')[0]);
     </script>
 </body>
 </html>
