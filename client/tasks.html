@@ -47,6 +47,8 @@
                     <b>Task</b>
                 </td>
                 <td>
+                </td>
+                <td>
                     <b>Options</b>
                 </td>
             </tr>
@@ -60,18 +62,27 @@
                 </td>
                 <td>
                     <p><b data-bind="text: title"></b></p><br>
-                    <small><p data-bind="text: description"></small></p>
+                    <small><p data-bind="text: description"></p></small>
                     <small data-bind="visible: location"><p><strong>Location: </strong><span data-bind="text: location"></span></p></small>
                     <small data-bind="visible: estimatedDuration"><p><strong>Estimated duration: </strong><span data-bind="text: estimatedDuration"></span> hours</p></small>
                     <small data-bind="visible: startingTime"><p><strong>Starting time: </strong><span data-bind="text: moment(startingTime()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
                     <small data-bind="visible: dueDate"><p><strong>Due date: </strong><span data-bind="text: moment(dueDate()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
                 </td>
-              </td>
-              <td>
-                <button data-bind="click: $parent.beginChangeStatus" class="btn btn-default btn-sm">Change Status</button>
-                <button data-bind="click: $parent.beginEdit" class="btn btn-default btn-sm">Edit</button>
-                <button data-bind="click: $parent.remove" class="btn btn-default btn-sm">Delete</button>
-              </td>
+                <td>
+                <!-- ko if: checkpoints() && checkpoints().length > 0 -->
+                    <p><b>Checkpoints</b></p>
+                    <!-- ko foreach: checkpoints -->
+                    <div class="checkbox">
+                        <label><input type="checkbox" data-bind="attr: { value: title }, checked: done"><span data-bind="text: title"></span></label>
+                    </div>
+                    <!-- /ko -->
+                <!-- /ko -->
+                </td>
+                <td>
+                    <button data-bind="click: $parent.beginChangeStatus" class="btn btn-default btn-sm">Change Status</button>
+                    <button data-bind="click: $parent.beginEdit" class="btn btn-default btn-sm">Edit</button>
+                    <button data-bind="click: $parent.remove" class="btn btn-default btn-sm">Delete</button>
+                </td>
             </tr>
             <!-- /ko -->
         </table>
@@ -279,12 +290,14 @@
                 title: ko.observable(data[i].title),
                 description: ko.observable(data[i].description),
                 location: ko.observable(data[i].location),
+                checkpoints: ko.observable(data[i].checkpoints),
                 estimatedDuration: ko.observable(data[i].estimatedDuration),
                 startingTime: ko.observable(data[i].startingTime),
                 dueDate: ko.observable(data[i].dueDate),
                 status: ko.observable(data[i].status),
                 panelId: ko.observable(data[i].panelId)
               });
+              //console.log(self.tasks()[i].checkpoints());
             }
         });
     }
