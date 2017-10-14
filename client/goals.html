@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ZenLife - Goals</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="static/zenlife-favicon.png">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.2.0.js"></script>
+<script type="text/javascript" src="scripts/moment.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <img src="static/zenlife-icon-site.png" class="img-rounded center-block" style="max-width: 15%" alt="Zen Life">
+            <h1 class="text-center">Zen Life</h1> 
+            <p class="text-center">Based on principles of Zen philosophy, Zen Life will help you to manage your personal tasks.</p> 
+            <div class="text-center">
+                <div class="btn-group btn-group-md">
+                    <button class="btn btn-default">
+                        <a href="/">Home</a>
+                    </button>
+                    <button class="btn btn-default">
+                        <a href="goals.html">Goals</a>
+                    </button>
+                    <!--<button class="btn btn-default">
+                        <a href="goals.html">Goals</a>
+                    </button>
+                    <button class="btn btn-default">
+                        <a href="panels.html">Panels</a>
+                    </button>-->
+                    <button class="btn btn-default">
+                        <a href="about.html">About</a>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main" class="container">
+      <h1 class="text-center">Goals</h1>
+      <table class="table table-hover">
+        <tr>
+            <td style="width: 1px;"></td>
+            <td>
+                <b>Goal</b>
+            </td>
+            <td>
+                <b>Options</b>
+            </td>
+        </tr>
+        <!-- ko foreach: goals -->
+        <tr>
+            <td>
+                <span data-bind="visible: status() == 'Achieved'" class="label label-success">Achieved</span>
+                <span data-bind="visible: status() == 'Working'" class="label label-warning">Working</span>
+            </td>
+            <td>
+                <p><b data-bind="text: title"></b></p><br>
+                <small><p data-bind="text: description"></small></p>
+                <small data-bind="visible: deadline"><p><strong>Deadline: </strong><span data-bind="text: moment(deadline()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
+            </td>
+          </td>
+          <td>
+            <button data-bind="click: $parent.beginChangeStatus" class="btn btn-default btn-sm">Change Status</button>
+            <button data-bind="click: $parent.beginEdit" class="btn btn-default btn-sm">Edit</button>
+            <button data-bind="click: $parent.remove" class="btn btn-default btn-sm">Delete</button>
+          </td>
+        </tr>
+        <!-- /ko -->
+      </table>
+      <button data-bind="click: beginAdd" class="btn">Add Goal</button>      
+    </div>
+    <div id="add" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="addDialogLabel">Add Goal</h3>
+                </div>
+                <div class="modal-body">
+                    <form class="form-group">
+                        <div class="form-group">
+                            <label for="inputGoal">Title</label>
+                            <input class="form-control" data-bind="value: title" type="text" id="inputGoal" placeholder="Goal title" style="width: 150px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDescription">Description</label>
+                            <input class="form-control" data-bind="value: description" type="text" id="inputDescription" placeholder="Description" style="width: 300px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDeadline">Deadline</label>
+                            <input class="form-control" type="datetime-local" data-bind="value: deadline" id="inputDeadline" placeholder="Deadline" style="width: 300px;">
+                        </div>                
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button data-bind="click: addGoal" class="btn btn-primary">Add Goal</button>
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="edit" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="editDialogLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="editDialogLabel">Add Goal</h3>
+                </div>
+                <div class="modal-body">
+                    <form class="form-group">
+                        <div class="form-group">
+                            <label for="inputGoal">Goal</label>
+                            <input class="form-control" data-bind="value: title" type="text" id="inputGoal" placeholder="Goal title" style="width: 150px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDescription">Description</label>
+                            <input class="form-control" data-bind="value: description" type="text" id="inputDescription" placeholder="Description" style="width: 300px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDeadline">Deadline</label>
+                            <input class="form-control" type="datetime-local" data-bind="value: deadline" id="inputDeadline" placeholder="Deadline" style="width: 300px;">
+                            <small><p>Current due date: <span data-bind="text: moment(deadline()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
+                        </div>      
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button data-bind="click:editGoal" class="btn btn-primary">Update Goal</button>
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="changeStatus" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="changeStatusLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="changeStatusLabel">Change Goal Status</h3>
+                </div>
+                <div class="modal-body">
+                    <form class="form-group">
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select class="form-control" data-bind="value: status">
+                                <option value="Working">Working</option>
+                                <option value="Achieved">Achieved</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button data-bind="click:changeStatus" class="btn btn-primary">Update Status</button>
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+    function GoalsViewModel() {
+        var self = this;
+        self.goalsURI = 'http://localhost:3000/api/Goals';
+        self.goals = ko.observableArray();
+        //self.username = "";
+        //self.password = "";
+
+        self.ajax = function(uri, method, data) {
+            var request = {
+                url: uri,
+                type: method,
+                contentType: "application/json",
+                cache: false,
+                dataType: 'json',
+                data: JSON.stringify(data),
+                error: function(jqXHR) {
+                  console.log("Error " + jqXHR.status);
+                }
+            };
+            return $.ajax(request);
+        }
+
+        self.beginAdd = function() {
+            $('#add').modal('show');
+        }
+        self.add = function(goal) {
+            self.ajax(self.goalsURI, 'POST', goal).done(function(data) {
+                self.goals.push({
+                    id: ko.observable(data.id),
+                    title: ko.observable(data.title),
+                    description: ko.observable(data.description),
+                    deadline: ko.observable(new Date(data.deadline)),
+                    status: ko.observable(data.status)
+                });
+            });
+        }
+
+        self.beginEdit = function(goal) {
+            $('#edit').modal('show');
+            editGoalViewModel.setGoal(goal);
+        }
+        self.edit = function(goal, data) {
+            self.ajax(self.goalsURI, 'PUT', data).done(function(updatedGoal) {
+                self.updateGoal(goal, updatedGoal);
+            });
+        }
+        self.updateGoal = function(goal, updatedGoal) {
+            var i = self.goals.indexOf(goal);
+            self.goals()[i].title(updatedGoal.title);
+            self.goals()[i].description(updatedGoal.description);
+            self.goals()[i].deadline(new Date(updatedGoal.deadline));
+            self.goals()[i].status(updatedGoal.status);
+        }
+
+        self.remove = function(goal) {
+            deleteURI = self.goalsURI+"/"+goal.id();
+            if (confirm("Are you sure that you want to delete this goal?")) {
+                self.ajax(deleteURI, 'DELETE').done(function() {
+                    self.goals.remove(goal);
+                });
+            }
+        }
+
+        self.beginChangeStatus = function(goal) {
+            $('#changeStatus').modal('show');
+            editGoalViewModel.setGoal(goal);
+        }
+        self.changeStatus = function(goal) {
+            self.ajax(self.goalsURI, 'PUT', data).done(function(updatedGoal) {
+                self.updateGoal(goal, updatedGoal);
+            });
+        }
+
+        self.ajax(self.goalsURI, 'GET').done(function(data) {
+            for (var i = 0; i < data.length; i++) {
+              self.goals.push({
+                id: ko.observable(data[i].id),
+                title: ko.observable(data[i].title),
+                description: ko.observable(data[i].description),
+                deadline: ko.observable(data[i].deadline),
+                status: ko.observable(data[i].status)
+              });
+            }
+        });
+    }
+    function AddGoalViewModel() {
+        var self = this;
+        self.title = ko.observable();
+        self.description = ko.observable();
+        self.deadline = ko.observable();
+        self.status = ko.observable();
+
+        self.addGoal = function() {
+            $('#add').modal('hide');
+            goalsViewModel.add({
+                title: self.title(),
+                description: self.description(),
+                deadline: self.deadline() ? self.deadline() : null,
+                status: "Working"
+            });
+            self.title("");
+            self.description("");
+            self.deadline("");
+            self.status("");
+        }
+    }
+    function EditGoalViewModel() {
+        var self = this;
+        self.id = ko.observable();
+        self.title = ko.observable();
+        self.description = ko.observable();
+        self.deadline = ko.observable();
+        self.status = ko.observable();
+
+        self.setGoal = function(goal) {
+            self.goal = goal;
+            self.id(goal.id());
+            self.title(goal.title());
+            self.description(goal.description());
+            self.deadline(goal.deadline());
+            self.status(goal.status());
+        }
+        self.editGoal = function() {
+            $('#edit').modal('hide');
+            goalsViewModel.edit(self.goal, {
+                id: self.id(),
+                title: self.title(),
+                description: self.description(),
+                deadline: self.deadline() ? new Date(self.deadline()) : null,
+                status: self.status() 
+            });
+        }
+        self.changeStatus = function() {
+            $('#changeStatus').modal('hide');
+            goalsViewModel.edit(self.goal, {
+                id: self.id(),
+                title: self.title(),
+                description: self.description(),
+                deadline: self.deadline(),
+                status: self.status()
+            });
+        }
+    }
+
+    var goalsViewModel = new GoalsViewModel();
+    var addGoalViewModel = new AddGoalViewModel();
+    var editGoalViewModel = new EditGoalViewModel();
+    ko.applyBindings(goalsViewModel, $('#main')[0]);
+    ko.applyBindings(addGoalViewModel, $('#add')[0]);
+    ko.applyBindings(editGoalViewModel, $('#edit')[0]);
+    ko.applyBindings(editGoalViewModel, $('#changeStatus')[0]);
+    </script>
+</body>
+</html>

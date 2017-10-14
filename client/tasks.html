@@ -21,13 +21,13 @@
                     <button class="btn btn-default">
                         <a href="/">Home</a>
                     </button>
-                    <button class="btn btn-default">
-                        <a href="tasks.html">Tasks</a>
-                    </button>
                     <!--<button class="btn btn-default">
+                        <a href="tasks.html">Tasks</a>
+                    </button>-->
+                    <button class="btn btn-default">
                         <a href="goals.html">Goals</a>
                     </button>
-                    <button class="btn btn-default">
+                    <!--<button class="btn btn-default">
                         <a href="panels.html">Panels</a>
                     </button>-->
                     <button class="btn btn-default">
@@ -39,45 +39,43 @@
     </div>
 
     <div id="main" class="container">
-      <h1 class="text-center">Tasks</h1>
-      <table class="table table-hover">
-        <tr>
-            <td style="width: 1px;"></td>
-            <td>
-                <b>Task</b>
-            </td>
-            <td>
-                <b>Options</b>
-            </td>
-        </tr>
-        <!-- ko foreach: tasks -->
-        <tr>
-            <td>
-                <span data-bind="visible: status() == 'Done'" class="label label-success">Done</span>
-                <span data-bind="visible: status() == 'On Going'" class="label label-warning">On Going</span>
-                <span data-bind="visible: status() == 'Paused'" class="label label-danger">Paused</span>
-                <span data-bind="visible: status() == 'Pending'" class="label label-default">Pending</span>
-            </td>
-            <td>
-                <p><b data-bind="text: title"></b></p><br>
-                <small><p data-bind="text: description"></small></p>
-                <small data-bind="visible: location"><p><strong>Location: </strong><span data-bind="text: location"></span></p></small>
-                <small data-bind="visible: estimatedDuration"><p><strong>Estimated duration: </strong><span data-bind="text: estimatedDuration"></span> hours</p></small>
-                <small data-bind="visible: startingTime"><p><strong>Starting time: </strong><span data-bind="text: moment(startingTime()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
-                <small data-bind="visible: dueDate"><p><strong>Due date: </strong><span data-bind="text: moment(dueDate()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
-            </td>
-          </td>
-          <td>
-            <button data-bind="click: $parent.beginChangeStatus" class="btn btn-default btn-sm">Change Status</button>
-            <button data-bind="click: $parent.beginEdit" class="btn btn-default btn-sm">Edit</button>
-            <button data-bind="click: $parent.remove" class="btn btn-default btn-sm">Delete</button>
-          </td>
-        </tr>
-        <!-- /ko -->
-      </table>
-      <button data-bind="click: beginAdd" class="btn">Add Task</button>
-      <!--<button data-toggle="modal" data-target="#add" class="btn">Add Task</button>-->
-      
+        <h1 class="text-center">Tasks</h1>
+        <table class="table table-hover">
+            <tr>
+                <td style="width: 1px;"></td>
+                <td>
+                    <b>Task</b>
+                </td>
+                <td>
+                    <b>Options</b>
+                </td>
+            </tr>
+            <!-- ko foreach: tasks -->
+            <tr>
+                <td>
+                    <span data-bind="visible: status() == 'Done'" class="label label-success">Done</span>
+                    <span data-bind="visible: status() == 'On Going'" class="label label-warning">On Going</span>
+                    <span data-bind="visible: status() == 'Paused'" class="label label-danger">Paused</span>
+                    <span data-bind="visible: status() == 'Pending'" class="label label-default">Pending</span>
+                </td>
+                <td>
+                    <p><b data-bind="text: title"></b></p><br>
+                    <small><p data-bind="text: description"></small></p>
+                    <small data-bind="visible: location"><p><strong>Location: </strong><span data-bind="text: location"></span></p></small>
+                    <small data-bind="visible: estimatedDuration"><p><strong>Estimated duration: </strong><span data-bind="text: estimatedDuration"></span> hours</p></small>
+                    <small data-bind="visible: startingTime"><p><strong>Starting time: </strong><span data-bind="text: moment(startingTime()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
+                    <small data-bind="visible: dueDate"><p><strong>Due date: </strong><span data-bind="text: moment(dueDate()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
+                </td>
+              </td>
+              <td>
+                <button data-bind="click: $parent.beginChangeStatus" class="btn btn-default btn-sm">Change Status</button>
+                <button data-bind="click: $parent.beginEdit" class="btn btn-default btn-sm">Edit</button>
+                <button data-bind="click: $parent.remove" class="btn btn-default btn-sm">Delete</button>
+              </td>
+            </tr>
+            <!-- /ko -->
+        </table>
+        <button id="btnAdd" data-bind="click: beginAdd" class="btn">Add Task</button>
     </div>
     <div id="add" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -186,7 +184,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button data-bind="click:changeStatus" class="btn btn-primary">Update Status</button>
+                    <button data-bind="click: editTask" class="btn btn-primary">Update Status</button>
                     <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
                 </div>
             </div>
@@ -228,7 +226,8 @@
                     estimatedDuration: ko.observable(data.estimatedDuration),
                     startingTime: ko.observable(new Date(data.startingTime)),
                     dueDate: ko.observable(new Date(data.dueDate)),
-                    status: ko.observable(data.status)
+                    status: ko.observable(data.status),
+                    panelId: ko.observable(data.panelId)
                 });
             });
         }
@@ -251,6 +250,7 @@
             self.tasks()[i].startingTime(new Date(updatedTask.startingTime));
             self.tasks()[i].dueDate(new Date(updatedTask.dueDate));
             self.tasks()[i].status(updatedTask.status);
+            self.tasks()[i].panelId(updatedTask.panelId);
         }
 
         self.remove = function(task) {
@@ -282,7 +282,8 @@
                 estimatedDuration: ko.observable(data[i].estimatedDuration),
                 startingTime: ko.observable(data[i].startingTime),
                 dueDate: ko.observable(data[i].dueDate),
-                status: ko.observable(data[i].status)
+                status: ko.observable(data[i].status),
+                panelId: ko.observable(data[i].panelId)
               });
             }
         });
@@ -296,6 +297,7 @@
         self.startingTime = ko.observable();
         self.dueDate = ko.observable();
         self.status = ko.observable();
+        self.panelId = ko.observable();
 
         self.addTask = function() {
             $('#add').modal('hide');
@@ -306,7 +308,8 @@
                 estimatedDuration: self.estimatedDuration() ? self.estimatedDuration() : 0,
                 startingTime: self.startingTime() ? self.startingTime() : null,
                 dueDate: self.dueDate() ? self.dueDate() : null,
-                status: "Pending"
+                status: "Pending",
+                panelId: null
             });
             self.title("");
             self.description("");
@@ -327,6 +330,7 @@
         self.startingTime = ko.observable();
         self.dueDate = ko.observable();
         self.status = ko.observable();
+        self.panelId = ko.observable();
 
         self.setTask = function(task) {
             self.task = task;
@@ -338,9 +342,11 @@
             self.startingTime(task.startingTime());
             self.dueDate(task.dueDate());
             self.status(task.status());
+            self.panelId(task.panelId());
         }
         self.editTask = function() {
             $('#edit').modal('hide');
+            $('#changeStatus').modal('hide');
             tasksViewModel.edit(self.task, {
                 id: self.id(),
                 title: self.title(),
@@ -349,20 +355,8 @@
                 estimatedDuration: self.estimatedDuration(),
                 startingTime: self.startingTime() ? new Date(self.startingTime()) : null,
                 dueDate: self.dueDate() ? new Date(self.dueDate()) : null,
-                status: self.status() 
-            });
-        }
-        self.changeStatus = function() {
-            $('#changeStatus').modal('hide');
-            tasksViewModel.edit(self.task, {
-                id: self.id(),
-                title: self.title(),
-                description: self.description(),
-                location: self.location(),
-                estimatedDuration: self.estimatedDuration(),
-                startingTime: self.startingTime(),
-                dueDate: self.dueDate(),
-                status: self.status()
+                status: self.status(),
+                panelId: self.panelId() 
             });
         }
     }

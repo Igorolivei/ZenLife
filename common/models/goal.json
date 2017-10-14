@@ -13,8 +13,13 @@
     "description": {
       "type": "string"
     },
-    "dueDate": {
+    "deadline": {
       "type": "date"
+    },
+    "status": {
+      "type": "string",
+      "required": true,
+      "default": "Working"
     }
   },
   "validations": [],

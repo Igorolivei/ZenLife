@@ -24,10 +24,10 @@
                     <button class="btn btn-default">
                         <a href="tasks.html">Tasks</a>
                     </button>
-                    <!--<button class="btn btn-default">
+                    <button class="btn btn-default">
                         <a href="goals.html">Goals</a>
                     </button>
-                    <button class="btn btn-default">
+                    <!--<button class="btn btn-default">
                         <a href="panels.html">Panels</a>
                     </button>-->
                     <button class="btn btn-default">
@@ -46,11 +46,14 @@
                     <div class="panel-heading">
                         <strong><span data-bind="text: type"></span></strong>
                         <div class="pull-right">
+                            <button type="button" data-bind="click: $parent.beginAddTask" class="btn btn-default btn-xs">
+                                <span class="glyphicon glyphicon-tasks"></span>
+                            </button>
+                            <button type="button" data-bind="click: $parent.beginAddGoal" class="btn btn-default btn-xs">
+                                <span class="glyphicon glyphicon-screenshot"></span>
+                            </button>
                             <button type="button" data-bind="click: $parent.hidePanel" class="btn btn-default btn-xs">
                                 <span class="glyphicon glyphicon-eye-close"></span>
-                            </button>
-                            <button type="button" data-bind="click: $parent.beginAddTask" class="btn btn-default btn-xs">
-                                <span class="glyphicon glyphicon-plus"></span>
                             </button>
                             <button type="button" data-bind="click: $parent.beginConfigurePanel" class="btn btn-default btn-xs">
                                 <span class="glyphicon glyphicon-cog"></span>
@@ -58,12 +61,34 @@
                         </div>
                     </div>
                     <div class="panel-body">
-                        <ul class="list-group">
-                            <li data-bind="visible: !tasks().length > 0" class="list-group-item"><p>Empty panel</p></li>
+                        <div class="list-group">
+                            <div data-bind="visible: !tasks().length > 0 && !goals().length > 0" class="list-group-item">
+                                <p>Empty panel</p>
+                            </div>
                             <!-- ko foreach: tasks -->
-                            <li class="list-group-item"><p data-bind="text: title"></p></li>
+                            <div class="list-group-item">
+                                <span class="glyphicon glyphicon-tasks"></span>
+                                <b data-bind="text: title"></b>
+                                <div class="pull-right">
+                                    <button type="button" data-bind="click: function(data, event) { $parents[1].removeTask($data, $parent) }" class="btn btn-default btn-xs">
+                                        <span class="glyphicon glyphicon-remove" style="color: red"></span>
+                                    </button>
+                                </div>
+                            </div>
                             <!-- /ko -->
-                        </ul>
+
+                            <!-- ko foreach: goals -->
+                            <div class="list-group-item">
+                                <span class="glyphicon glyphicon-screenshot"></span>
+                                <b data-bind="text: title"></b>
+                                <div class="pull-right">
+                                    <button type="button" data-bind="click: function(data, event) { $parents[1].removeGoal($data, $parent) }" class="btn btn-default btn-xs">
+                                        <span class="glyphicon glyphicon-remove" style="color: red"></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- /ko -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -76,7 +101,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h3 id="addDialogLabel">Add Task/Goal to Panel</h3>
+                    <h3 id="addDialogLabel">Add Task to Panel</h3>
                 </div>
                 <div class="modal-body">
                     <!-- ko foreach: tasks -->
@@ -86,12 +111,17 @@
                             <button type="button"  data-bind="click: $parent.viewTask" class="btn btn-default btn-xs">
                                 <span class="glyphicon glyphicon-eye-open"></span>
                             </button>
-                            <button type="button" class="btn btn-default btn-xs">
+                            <button type="button" data-bind="click: $parent.addToPanel" class="btn btn-default btn-xs">
                                 Add to Panel
                             </button>
                         </div>
                     </div>
                     <!-- /ko -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-xs">
+                        <a href="tasks.html#btnAdd">Need a new Task?</a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -115,13 +145,59 @@
                         <small data-bind="visible: estimatedDuration"><p><strong>Estimated duration: </strong><span data-bind="text: estimatedDuration"></span> hours</p></small>
                         <small data-bind="visible: startingTime"><p><strong>Starting time: </strong><span data-bind="text: moment(startingTime()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
                         <small data-bind="visible: dueDate"><p><strong>Due date: </strong><span data-bind="text: moment(dueDate()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
-                    </small>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-
+    <div id="addGoal" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="addDialogLabel">Add Goal to Panel</h3>
+                </div>
+                <div class="modal-body">
+                    <!-- ko foreach: goals -->
+                    <div class="clearfix">
+                        <strong><p data-bind="text: title" class="pull-left"></p></strong>
+                        <div class="pull-right">
+                            <button type="button"  data-bind="click: $parent.viewGoal" class="btn btn-default btn-xs">
+                                <span class="glyphicon glyphicon-eye-open"></span>
+                            </button>
+                            <button type="button" data-bind="click: $parent.addToPanel" class="btn btn-default btn-xs">
+                                Add to Panel
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /ko -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-xs">
+                        <a href="goals.html#btnAdd">Need a new Goal?</a>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="viewGoal" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <span data-bind="visible: status() == 'Achieved'" class="label label-success pull-left">Achieved</span>
+                    <span data-bind="visible: status() == 'Working'" class="label label-warning pull-left">Working</span>
+                    <h1 class="text-center" data-bind="text: title"></h1>
+                </div>
+                <div class="modal-body">
+                    <div class="content">
+                        <h3 data-bind="text: description"></h3>
+                        <small data-bind="visible: deadline"><p><strong>Deadline: </strong><span data-bind="text: moment(deadline()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="configurePanel" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -130,7 +206,9 @@
                     <h3 id="addDialogLabel">Configure Panel</h3>
                 </div>
                 <div class="modal-body">
-                    
+                    <div class="content">
+                        <p>Panel configurations</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -138,10 +216,14 @@
     <script type="text/javascript">
     function PanelsViewModel() {
         var self = this;
-        self.panelsURI = 'http://localhost:3000/api/Panels';
-        self.tasksURI = 'http://localhost:3000/api/Tasks';
         self.panels = ko.observableArray();
         self.tasks = ko.observableArray();
+        self.goals = ko.observableArray();
+        self.panelsURI = 'http://localhost:3000/api/Panels';
+        self.tasksURI = 'http://localhost:3000/api/Tasks';
+        self.goalsURI = 'http://localhost:3000/api/Goals';
+        self.filterTasks = 'filter={"where": {"and": [{"or": [{"panelId": {"exists":false}}, {"panelId": {"eq": null}}]}, {"or": [{"GoalId": {"exists":false}}, {"GoalId": {"eq": null}}]}, {"status": {"neq": "Done"}}]}}';
+        self.filterGoals = 'filter={"where": {"or": [{"panelId": {"exists":false}}, {"panelId": {"eq": null}}]}}';
 
         self.ajax = function(uri, method, data) {
             var request = {
@@ -158,60 +240,8 @@
             return $.ajax(request);
         }
 
-        self.beginAddTask = function() {
-            self.ajax(self.tasksURI, 'GET').done(function(data) {
-                for (var i = 0; i < data.length; i++) {
-                  self.tasks.push({
-                    id: ko.observable(data[i].id),
-                    title: ko.observable(data[i].title),
-                    description: ko.observable(data[i].description),
-                    location: ko.observable(data[i].location),
-                    estimatedDuration: ko.observable(data[i].estimatedDuration),
-                    startingTime: ko.observable(data[i].startingTime),
-                    dueDate: ko.observable(data[i].dueDate),
-                    status: ko.observable(data[i].status)
-                  });
-                }
-            });
-            editPanelViewModel.setTasks(self.tasks);
-            self.tasks([]);
-            $('#addTask').modal('show');
-        }
-
-        self.hidePanel = function(panel) {
-            self.panels.remove(panel);
-        }
-
-        self.beginConfigurePanel = function() {
-            $('#configurePanel').modal('show');
-        }
-
-        self.ajax(self.panelsURI, 'GET').done(function(data) {
-            for (var i = 0; i < data.length; i++) {
-                self.panels.push({
-                    id: ko.observable(data[i].id),
-                    tasks: ko.observableArray([]),
-                    type: ko.observable(data[i].type)
-                });
-                self.getPanelTasks(i, data[i].id);
-            }            
-        });
-
-        self.getPanelTasks = function(pos, id) {
-            var panelsTasksURI = self.panelsURI+'/'+id+'/Tasks';
-
-            self.ajax(panelsTasksURI, 'GET').done(function(data) {
-                for (var i = 0; i < data.length; i++) {
-                    self.panels()[pos].tasks.push({
-                        id: ko.observable(data[i].id),
-                        title: ko.observable(data[i].title),
-                        description: ko.observable(data[i].description)
-                    });
-                }
-            });          
-        }
-
-        self.ajax(self.tasksURI, 'GET').done(function(data) {
+        //Requests to fill panels, tasks and goals when the page loads
+        self.ajax(self.tasksURI+'?'+self.filterTasks, 'GET').done(function(data) {
             for (var i = 0; i < data.length; i++) {
               self.tasks.push({
                 id: ko.observable(data[i].id),
@@ -225,10 +255,192 @@
               });
             }
         });
+
+        self.ajax(self.goalsURI+'?'+self.filterGoals, 'GET').done(function(data) {
+            for (var i = 0; i < data.length; i++) {
+              self.goals.push({
+                id: ko.observable(data[i].id),
+                title: ko.observable(data[i].title),
+                description: ko.observable(data[i].description),
+                deadline: ko.observable(data[i].deadline),
+                status: ko.observable(data[i].status)
+              });
+            }
+        });
+
+        self.ajax(self.panelsURI, 'GET').done(function(data) {
+            for (var i = 0; i < data.length; i++) {
+                self.panels.push({
+                    id: ko.observable(data[i].id),
+                    tasks: ko.observableArray([]),
+                    goals: ko.observableArray([]),
+                    type: ko.observable(data[i].type)
+                });
+                self.getPanelTasks(i, data[i].id);
+                self.getPanelGoals(i, data[i].id);
+            }            
+        });
+
+        //Panel's functions
+        self.hidePanel = function(panel) {
+            self.panels.remove(panel);
+        }
+
+        self.beginConfigurePanel = function(panel) {
+            $('#configurePanel').modal('show');
+        }
+
+        //Panel's tasks
+        self.beginAddTask = function(panel) {
+            self.ajax(self.tasksURI+'?'+self.filterTasks, 'GET').done(function(data) {
+                for (var i = 0; i < data.length; i++) {
+                  self.tasks.push({
+                    id: ko.observable(data[i].id),
+                    title: ko.observable(data[i].title),
+                    description: ko.observable(data[i].description),
+                    location: ko.observable(data[i].location),
+                    estimatedDuration: ko.observable(data[i].estimatedDuration),
+                    startingTime: ko.observable(data[i].startingTime),
+                    dueDate: ko.observable(data[i].dueDate),
+                    status: ko.observable(data[i].status)
+                  });
+                }
+            });
+            editPanelTasksViewModel.setTasks(self.tasks, panel);
+            self.tasks([]);
+            $('#addTask').modal('show');
+        }
+
+        self.addTask = function(task, panel) {
+            var panelIndex = self.panels.indexOf(panel);
+
+            if (panelIndex > -1) {
+                self.ajax(self.tasksURI, 'PUT', task).done(function(task) {
+                    self.panels()[panelIndex].tasks.push(task);
+                    console.log("task added to panel.");
+                });
+            } else {
+                alert("An error ocurred: We couldn't add the task to the selected panel.");
+            }
+        }
+
+        self.getPanelTasks = function(pos, id) {
+            var panelsTasksURI = self.panelsURI+'/'+id+'/Tasks';
+
+            self.ajax(panelsTasksURI, 'GET').done(function(data) {
+                for (var i = 0; i < data.length; i++) {
+                    self.panels()[pos].tasks.push({
+                        id: ko.observable(data[i].id),
+                        title: ko.observable(data[i].title),
+                        description: ko.observable(data[i].description),
+                        location: ko.observable(data[i].location),
+                        estimatedDuration: ko.observable(data[i].estimatedDuration),
+                        startingTime: ko.observable(data[i].startingTime),
+                        dueDate: ko.observable(data[i].dueDate),
+                        status: ko.observable(data[i].status),
+                        panelId: ko.observable(data[i].panelId)
+                    });
+                }
+            });          
+        }
+
+        self.removeTask = function(task, panel) {
+            var panelIndex = self.panels.indexOf(panel);
+            var taskIndex = self.panels()[panelIndex].tasks.indexOf(task);
+
+            self.ajax(self.tasksURI, 'PUT', {
+                                                id: task.id(),
+                                                title: task.title(),
+                                                description: task.description(),
+                                                location: task.location(),
+                                                estimatedDuration: task.estimatedDuration(),
+                                                startingTime: task.startingTime() ? new Date(task.startingTime()) : null,
+                                                dueDate: task.dueDate() ? new Date(task.dueDate()) : null,
+                                                status: task.status(),
+                                                panelId: null
+                                            }).done(function(res) {
+                self.panels()[panelIndex].tasks.splice(taskIndex, 1);
+                self.tasks.push(task);
+                console.log("task removed from panel.");
+            });
+        }
+
+        //Panel's goals
+        self.beginAddGoal = function(panel) {
+            self.ajax(self.goalsURI+'?'+self.filterGoals, 'GET').done(function(data) {
+                for (var i = 0; i < data.length; i++) {
+                  self.goals.push({
+                    id: ko.observable(data[i].id),
+                    title: ko.observable(data[i].title),
+                    description: ko.observable(data[i].description),
+                    deadline: ko.observable(data[i].deadline),
+                    status: ko.observable(data[i].status)
+                  });
+                }
+            });
+            editPanelGoalsViewModel.setGoals(self.goals, panel);
+            self.goals([]);
+            $('#addGoal').modal('show');
+        }
+        
+        self.addGoal = function(goal, panel) {
+            var panelIndex = self.panels.indexOf(panel);
+
+            if (panelIndex > -1) {
+                self.ajax(self.goalsURI, 'PUT', goal).done(function(goal) {
+                    self.panels()[panelIndex].goals.push(goal);
+                    console.log("goal added to panel.");
+                });
+            } else {
+                alert("An error ocurred: We couldn't add the goal to the selected panel.");
+            }
+        }
+        
+        self.getPanelGoals = function(pos, id) {
+            var panelsGoalsURI = self.panelsURI+'/'+id+'/Goals';
+
+            self.ajax(panelsGoalsURI, 'GET').done(function(data) {
+                for (var i = 0; i < data.length; i++) {
+                    self.panels()[pos].goals.push({
+                        id: ko.observable(data[i].id),
+                        title: ko.observable(data[i].title),
+                        description: ko.observable(data[i].description),
+                        deadline: ko.observable(data[i].deadline),
+                        status: ko.observable(data[i].status),
+                        panelId: ko.observable(data[i].panelId)
+                    });
+                }
+            });          
+        }
+
+        self.removeGoal = function(goal, panel) {
+            var panelIndex = self.panels.indexOf(panel);
+            var goalIndex = self.panels()[panelIndex].goals.indexOf(goal);
+
+            self.ajax(self.goalsURI, 'PUT', {
+                                                id: goal.id(),
+                                                title: goal.title(),
+                                                description: goal.description(),
+                                                deadline: goal.deadline() ? new Date(goal.deadline()) : null,
+                                                status: goal.status(),
+                                                panelId: null
+                                            }).done(function(res) {
+                self.panels()[panelIndex].goals.splice(goalIndex, 1);
+                self.goals.push(goal);
+                console.log("goal removed from panel.");
+            });
+        }
+
     }
+
     function EditPanelViewModel() {
         var self = this;
+    }
+
+    function EditPanelTasksViewModel() {
+        var self = this;
         self.tasks = ko.observableArray();
+        self.goals = ko.observableArray();
         self.id = ko.observable();
         self.title = ko.observable();
         self.description = ko.observable();
@@ -237,6 +449,13 @@
         self.startingTime = ko.observable();
         self.dueDate = ko.observable();
         self.status = ko.observable();
+        self.panelId = ko.observable();
+
+        self.setTasks = function(tasks, panel) {
+            self.panel = panel;
+            self.tasks(tasks());
+            self.panelId(panel.id());
+        }
 
         self.viewTask = function(task) {
             self.id(task.id());
@@ -250,15 +469,68 @@
             $('#viewTask').modal('show');   
         }
 
-        self.setTasks = function(tasks) {
-            self.tasks(tasks());
+        self.addToPanel = function(task) {
+            panelsViewModel.addTask({
+                id: task.id(),
+                title: task.title(),
+                description: task.description(),
+                location: task.location(),
+                estimatedDuration: task.estimatedDuration(),
+                startingTime: task.startingTime() ? new Date(task.startingTime()) : null,
+                dueDate: task.dueDate() ? new Date(task.dueDate()) : null,
+                status: task.status(),
+                panelId: self.panelId()
+            }, self.panel);
         }
     }
+
+    function EditPanelGoalsViewModel() {
+        var self = this;
+        self.goals = ko.observableArray();
+        self.id = ko.observable();
+        self.title = ko.observable();
+        self.description = ko.observable();
+        self.deadline = ko.observable();
+        self.status = ko.observable();
+        self.panelId = ko.observable();
+
+        self.setGoals = function(goals, panel) {
+            self.panel = panel;
+            self.goals(goals());
+            self.panelId(panel.id());
+        }
+
+        self.viewGoal = function(goal) {
+            self.id(goal.id());
+            self.title(goal.title());
+            self.description(goal.description());
+            self.deadline(goal.deadline());
+            self.status(goal.status());
+            $('#viewGoal').modal('show');   
+        }
+
+        self.addToPanel = function(goal) {
+            panelsViewModel.addGoal({
+                id: goal.id(),
+                title: goal.title(),
+                description: goal.description(),
+                deadline: goal.deadline() ? new Date(goal.deadline()) : null,
+                status: goal.status(),
+                panelId: self.panelId()
+            }, self.panel);
+        }
+    }
+
     var panelsViewModel = new PanelsViewModel();
     var editPanelViewModel = new EditPanelViewModel();
+    var editPanelTasksViewModel = new EditPanelTasksViewModel();
+    var editPanelGoalsViewModel = new EditPanelGoalsViewModel();
     ko.applyBindings(panelsViewModel, $('#main')[0]);
-    ko.applyBindings(editPanelViewModel, $('#addTask')[0]);
-    ko.applyBindings(editPanelViewModel, $('#viewTask')[0]);
+    ko.applyBindings(editPanelViewModel, $('#configurePanel')[0]);
+    ko.applyBindings(editPanelTasksViewModel, $('#addTask')[0]);
+    ko.applyBindings(editPanelTasksViewModel, $('#viewTask')[0]);
+    ko.applyBindings(editPanelGoalsViewModel, $('#addGoal')[0]);
+    ko.applyBindings(editPanelGoalsViewModel, $('#viewGoal')[0]);
     </script>
 </body>
 </html>
