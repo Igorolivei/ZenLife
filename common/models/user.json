@@ -1,37 +1,11 @@
 {
-  "name": "User",
-  "base": "PersistedModel",
+  "name": "user",
+  "base": "User",
   "idInjection": true,
   "options": {
     "validateUpsert": true
   },
-  "properties": {
-    "name": {
-      "type": "string",
-      "required": true
-    },
-    "birthday": {
-      "type": "date",
-      "required": true
-    },
-    "gender": {
-      "type": "string",
-      "required": true
-    },
-    "address": {
-      "type": [
-        "object"
-      ]
-    },
-    "email": {
-      "type": "string",
-      "required": true
-    },
-    "password": {
-      "type": "string",
-      "required": true
-    }
-  },
+  "properties": {},
   "validations": [],
   "relations": {
     "goals": {
