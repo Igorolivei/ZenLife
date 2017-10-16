@@ -67,24 +67,42 @@
                             </div>
                             <!-- ko foreach: tasks -->
                             <div class="list-group-item">
-                                <span class="glyphicon glyphicon-tasks"></span>
-                                <b data-bind="text: title"></b>
-                                <div class="pull-right">
-                                    <button type="button" data-bind="click: function(data, event) { $parents[1].removeTask($data, $parent) }" class="btn btn-default btn-xs">
-                                        <span class="glyphicon glyphicon-remove" style="color: red"></span>
-                                    </button>
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        <span class="glyphicon glyphicon-tasks"></span>
+                                    </div>
+                                    <b data-bind="text: title" class="form-control"></b>
+                                    <span class="input-group-btn">
+                                        <button type="button" data-bind="click: $parents[1].viewTask" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-eye-open"></span>
+                                        </button>
+                                    </span>
+                                    <span class="input-group-btn">
+                                        <button type="button" data-bind="click: function(data, event) { $parents[1].removeTask($data, $parent) }" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-remove" style="color: red"></span>
+                                        </button>
+                                    </span>
                                 </div>
                             </div>
                             <!-- /ko -->
 
                             <!-- ko foreach: goals -->
                             <div class="list-group-item">
-                                <span class="glyphicon glyphicon-screenshot"></span>
-                                <b data-bind="text: title"></b>
-                                <div class="pull-right">
-                                    <button type="button" data-bind="click: function(data, event) { $parents[1].removeGoal($data, $parent) }" class="btn btn-default btn-xs">
-                                        <span class="glyphicon glyphicon-remove" style="color: red"></span>
-                                    </button>
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        <span class="glyphicon glyphicon-screenshot"></span>
+                                    </div>
+                                    <b data-bind="text: title" class="form-control"></b>
+                                    <span class="input-group-btn">
+                                        <button type="button" data-bind="click: $parents[1].viewGoal" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-eye-open"></span>
+                                        </button>
+                                    </span>
+                                    <span class="input-group-btn">
+                                        <button type="button" data-bind="click: function(data, event) { $parents[1].removeGoal($data, $parent) }" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-remove" style="color: red"></span>
+                                        </button>
+                                    </span>
                                 </div>
                             </div>
                             <!-- /ko -->
@@ -142,6 +160,14 @@
                     <div class="content">
                         <h3 data-bind="text: description"></h3>
                         <small data-bind="visible: location"><p><strong>Location: </strong><span data-bind="text: location"></span></p></small>
+                        <!-- ko if: checkpoints() -->
+                            <small data-bind="visible: checkpoints().length > 0"><p><strong>Checkpoints: </strong></p></small>
+                            <!-- ko foreach: checkpoints -->
+                                <div class="checkbox">
+                                    <label class="pull-left"><input type="checkbox" data-bind="attr: { value: title }, checked: done, click: function(data, event) { $parent.changeDoneCheckpoint($parent, $data) }"><small><span data-bind="text: title"></span></small></label><br>
+                                </div>
+                            <!-- /ko -->
+                        <!-- /ko -->
                         <small data-bind="visible: estimatedDuration"><p><strong>Estimated duration: </strong><span data-bind="text: estimatedDuration"></span> hours</p></small>
                         <small data-bind="visible: startingTime"><p><strong>Starting time: </strong><span data-bind="text: moment(startingTime()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
                         <small data-bind="visible: dueDate"><p><strong>Due date: </strong><span data-bind="text: moment(dueDate()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
@@ -150,6 +176,7 @@
             </div>
         </div>
     </div>
+
     <div id="addGoal" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -180,6 +207,7 @@
             </div>
         </div>
     </div>
+
     <div id="viewGoal" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -198,6 +226,7 @@
             </div>
         </div>
     </div>
+
     <div id="configurePanel" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -248,10 +277,12 @@
                 title: ko.observable(data[i].title),
                 description: ko.observable(data[i].description),
                 location: ko.observable(data[i].location),
+                checkpoints: ko.observable(data[i].checkpoints),
                 estimatedDuration: ko.observable(data[i].estimatedDuration),
                 startingTime: ko.observable(data[i].startingTime),
                 dueDate: ko.observable(data[i].dueDate),
-                status: ko.observable(data[i].status)
+                status: ko.observable(data[i].status),
+                panelId: ko.observable(data[i].panelId)
               });
             }
         });
@@ -263,7 +294,8 @@
                 title: ko.observable(data[i].title),
                 description: ko.observable(data[i].description),
                 deadline: ko.observable(data[i].deadline),
-                status: ko.observable(data[i].status)
+                status: ko.observable(data[i].status),
+                panelId: ko.observable(data[i].panelId)
               });
             }
         });
@@ -299,10 +331,12 @@
                     title: ko.observable(data[i].title),
                     description: ko.observable(data[i].description),
                     location: ko.observable(data[i].location),
+                    checkpoints: ko.observable(data[i].checkpoints),
                     estimatedDuration: ko.observable(data[i].estimatedDuration),
                     startingTime: ko.observable(data[i].startingTime),
                     dueDate: ko.observable(data[i].dueDate),
-                    status: ko.observable(data[i].status)
+                    status: ko.observable(data[i].status),
+                    panelId: ko.observable(data[i].panelId)
                   });
                 }
             });
@@ -334,6 +368,7 @@
                         title: ko.observable(data[i].title),
                         description: ko.observable(data[i].description),
                         location: ko.observable(data[i].location),
+                        checkpoints: ko.observable(data[i].checkpoints),
                         estimatedDuration: ko.observable(data[i].estimatedDuration),
                         startingTime: ko.observable(data[i].startingTime),
                         dueDate: ko.observable(data[i].dueDate),
@@ -342,6 +377,12 @@
                     });
                 }
             });          
+        }
+
+        self.editTask = function(task, data) {
+            self.ajax(self.tasksURI, 'PUT', data).done(function(updatedTask) {
+                console.log("checkpoint updated");
+            });
         }
 
         self.removeTask = function(task, panel) {
@@ -353,6 +394,7 @@
                                                 title: task.title(),
                                                 description: task.description(),
                                                 location: task.location(),
+                                                checkpoints: task.checkpoints(),
                                                 estimatedDuration: task.estimatedDuration(),
                                                 startingTime: task.startingTime() ? new Date(task.startingTime()) : null,
                                                 dueDate: task.dueDate() ? new Date(task.dueDate()) : null,
@@ -365,6 +407,10 @@
             });
         }
 
+        self.viewTask = function(task) {
+            editPanelTasksViewModel.viewTask(task);
+        }
+
         //Panel's goals
         self.beginAddGoal = function(panel) {
             self.ajax(self.goalsURI+'?'+self.filterGoals, 'GET').done(function(data) {
@@ -374,7 +420,8 @@
                     title: ko.observable(data[i].title),
                     description: ko.observable(data[i].description),
                     deadline: ko.observable(data[i].deadline),
-                    status: ko.observable(data[i].status)
+                    status: ko.observable(data[i].status),
+                    panelId: ko.observable(data[i].panelId)
                   });
                 }
             });
@@ -431,6 +478,10 @@
             });
         }
 
+        self.viewGoal = function(goal) {
+            editPanelGoalsViewModel.viewGoal(goal);
+        }
+
     }
 
     function EditPanelViewModel() {
@@ -444,12 +495,27 @@
         self.id = ko.observable();
         self.title = ko.observable();
         self.description = ko.observable();
+        self.checkpoints = ko.observable();
         self.location = ko.observable();
         self.estimatedDuration = ko.observable();
         self.startingTime = ko.observable();
         self.dueDate = ko.observable();
         self.status = ko.observable();
         self.panelId = ko.observable();
+
+        self.setTask = function(task) {
+            self.task = task;
+            self.id(task.id());
+            self.title(task.title());
+            self.description(task.description());
+            self.location(task.location());
+            self.checkpoints(task.checkpoints());
+            self.estimatedDuration(task.estimatedDuration());
+            self.startingTime(task.startingTime());
+            self.dueDate(task.dueDate());
+            self.status(task.status());
+            self.panelId(task.panelId());
+        }
 
         self.setTasks = function(tasks, panel) {
             self.panel = panel;
@@ -462,10 +528,12 @@
             self.title(task.title());
             self.description(task.description());
             self.location(task.location());
+            self.checkpoints(task.checkpoints());
             self.estimatedDuration(task.estimatedDuration());
             self.startingTime(task.startingTime());
             self.dueDate(task.dueDate());
             self.status(task.status());
+            self.panelId(task.panelId());
             $('#viewTask').modal('show');   
         }
 
@@ -475,12 +543,31 @@
                 title: task.title(),
                 description: task.description(),
                 location: task.location(),
+                checkpoints: task.checkpoints(),
                 estimatedDuration: task.estimatedDuration(),
                 startingTime: task.startingTime() ? new Date(task.startingTime()) : null,
                 dueDate: task.dueDate() ? new Date(task.dueDate()) : null,
                 status: task.status(),
                 panelId: self.panelId()
             }, self.panel);
+        }
+
+        self.changeDoneCheckpoint = function(task, checkpoint) {
+            self.setTask(task); 
+            var i = self.checkpoints().indexOf(checkpoint);
+            self.checkpoints()[i].done = checkpoint.done;
+            panelsViewModel.editTask(self.task, {
+                id: self.id(),
+                title: self.title(),
+                description: self.description(),
+                location: self.location(),
+                checkpoints: self.checkpoints(),
+                estimatedDuration: self.estimatedDuration(),
+                startingTime: self.startingTime() ? new Date(self.startingTime()) : null,
+                dueDate: self.dueDate() ? new Date(self.dueDate()) : null,
+                status: self.status(),
+                panelId: self.panelId() 
+            });
         }
     }
 

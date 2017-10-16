@@ -69,14 +69,21 @@
                     <small data-bind="visible: dueDate"><p><strong>Due date: </strong><span data-bind="text: moment(dueDate()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
                 </td>
                 <td>
+                <p><b>Checkpoints</b></p>
                 <!-- ko if: checkpoints() && checkpoints().length > 0 -->
-                    <p><b>Checkpoints</b></p>
                     <!-- ko foreach: checkpoints -->
-                    <div class="checkbox">
-                        <label><input type="checkbox" data-bind="attr: { value: title }, checked: done"><span data-bind="text: title"></span></label>
+                    <div class="clearfix">
+                        <div class="checkbox">
+                            <label class="pull-left"><input type="checkbox" data-bind="attr: { value: title }, checked: done, click: function(data, event) { $parents[1].changeDoneCheckpoint($parent, $data) }"><span data-bind="text: title"></span></label>
+                        </div>
+                        <div class="pull-right">
+                            <span data-bind="click: function(data, event) { $parents[1].removeCheckpoint($parent, $data) }" class="glyphicon glyphicon-remove" style="color: red"></span>
+                        </div>
                     </div>
                     <!-- /ko -->
+                    <br>
                 <!-- /ko -->
+                <button data-bind="click: $parent.beginAddCheckpoint" class="btn btn-default btn-xs">Add Checkpoint</button>
                 </td>
                 <td>
                     <button data-bind="click: $parent.beginChangeStatus" class="btn btn-default btn-sm">Change Status</button>
@@ -158,18 +165,39 @@
                         <div class="form-group">
                             <label for="inputStartingTime">Starting Time</label>
                             <input class="form-control" type="datetime-local" data-bind="value: startingTime" id="inputStartingTime" placeholder="Starting Time" style="width: 300px;">
-                            <small><p>Current starting time: <span data-bind="text: moment(startingTime()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
+                            <small><p>Current starting time: <span data-bind="text: moment(startingTime()).format('DD/MM/YYYY hh:mm A')"></span></p></small>
                         </div>
                         <div class="form-group">
                             <label for="inputDueDate">Due Date</label>
-                            <input class="form-control" type="datetime-local" data-bind="value: dueDate" id="inputDueDate" placeholder="Due Date" style="width: 300px;">
-                            <small><p>Current due date: <span data-bind="text: moment(dueDate()).format('DD/MM/YYYY hh:mm a')"></span></p></small>
+                            <input class="form-control" type="datetime-local" data-bind="attr: { value: moment(dueDate()).format('MM/DD/YYYY hh:mm A') }" id="inputDueDate" placeholder="Due Date" style="width: 300px;">
+                            <small><p>Current due date: <span data-bind="text: moment(dueDate()).format('DD/MM/YYYY hh:mm A')"></span></p></small>
                         </div>      
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button data-bind="click:editTask" class="btn btn-primary">Update Task</button>
                     <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="addCheckpoint" class="modal fade" tabindex="=1" role="dialog" aria-labelledby="changeStatusLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="addCheckpointLabel">Add Checkpoint</h3>
+                </div>
+                <div class="modal-body">
+                    <label for="inputCheckpoint">Checkpoint</label>
+                    <div class="input-group">
+                        <input id="inputCheckpoint" type="text" class="form-control" placeholder="Checkpoint" >
+                        <span class="input-group-btn">
+                            <button data-bind="click: function(data, event) { addCheckpoint(inputCheckpoint.value) }" type="button" class="btn btn-default">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -234,6 +262,7 @@
                     title: ko.observable(data.title),
                     description: ko.observable(data.description),
                     location: ko.observable(data.location),
+                    checkpoints: ko.observable([]),
                     estimatedDuration: ko.observable(data.estimatedDuration),
                     startingTime: ko.observable(new Date(data.startingTime)),
                     dueDate: ko.observable(new Date(data.dueDate)),
@@ -257,6 +286,7 @@
             self.tasks()[i].title(updatedTask.title);
             self.tasks()[i].description(updatedTask.description);
             self.tasks()[i].location(updatedTask.location);
+            self.tasks()[i].checkpoints(updatedTask.checkpoints);
             self.tasks()[i].estimatedDuration(updatedTask.estimatedDuration);
             self.tasks()[i].startingTime(new Date(updatedTask.startingTime));
             self.tasks()[i].dueDate(new Date(updatedTask.dueDate));
@@ -283,6 +313,24 @@
             });
         }
 
+        self.beginAddCheckpoint = function(task) {
+            $('#addCheckpoint').modal('show');
+            editTaskViewModel.setTask(task);
+        }
+        self.addCheckpoint = function(task) {
+            self.ajax(self.tasksURI, 'PUT', data).done(function(updatedTask) {
+                self.updateTask(task, updatedTask);
+            });
+        }
+        self.changeDoneCheckpoint = function(task, checkpoint) {
+            editTaskViewModel.setTask(task);
+            editTaskViewModel.changeDoneCheckpoint(checkpoint);
+        }
+        self.removeCheckpoint = function(task, checkpoint) {
+            editTaskViewModel.setTask(task);
+            editTaskViewModel.removeCheckpoint(checkpoint);
+        }
+
         self.ajax(self.tasksURI, 'GET').done(function(data) {
             for (var i = 0; i < data.length; i++) {
               self.tasks.push({
@@ -297,7 +345,6 @@
                 status: ko.observable(data[i].status),
                 panelId: ko.observable(data[i].panelId)
               });
-              //console.log(self.tasks()[i].checkpoints());
             }
         });
     }
@@ -339,6 +386,7 @@
         self.title = ko.observable();
         self.description = ko.observable();
         self.location = ko.observable();
+        self.checkpoints = ko.observable();
         self.estimatedDuration = ko.observable();
         self.startingTime = ko.observable();
         self.dueDate = ko.observable();
@@ -351,6 +399,7 @@
             self.title(task.title());
             self.description(task.description());
             self.location(task.location());
+            self.checkpoints(task.checkpoints());
             self.estimatedDuration(task.estimatedDuration());
             self.startingTime(task.startingTime());
             self.dueDate(task.dueDate());
@@ -365,6 +414,59 @@
                 title: self.title(),
                 description: self.description(),
                 location: self.location(),
+                checkpoints: self.checkpoints() ? self.checkpoints() : [],
+                estimatedDuration: self.estimatedDuration(),
+                startingTime: self.startingTime() ? new Date(self.startingTime()) : null,
+                dueDate: self.dueDate() ? new Date(self.dueDate()) : null,
+                status: self.status(),
+                panelId: self.panelId() 
+            });
+        }
+        self.addCheckpoint = function(checkpoint) {
+            self.checkpoints().push({
+                title: checkpoint,
+                done: false
+            });
+            tasksViewModel.edit(self.task, {
+                id: self.id(),
+                title: self.title(),
+                description: self.description(),
+                location: self.location(),
+                checkpoints: self.checkpoints(),
+                estimatedDuration: self.estimatedDuration(),
+                startingTime: self.startingTime() ? new Date(self.startingTime()) : null,
+                dueDate: self.dueDate() ? new Date(self.dueDate()) : null,
+                status: self.status(),
+                panelId: self.panelId() 
+            });
+            $('#inputCheckpoint').val("");
+            console.log("checkpoint added");
+        }
+        self.changeDoneCheckpoint = function(checkpoint) {
+            var i = self.checkpoints().indexOf(checkpoint);
+            self.checkpoints()[i].done = checkpoint.done;
+            tasksViewModel.edit(self.task, {
+                id: self.id(),
+                title: self.title(),
+                description: self.description(),
+                location: self.location(),
+                checkpoints: self.checkpoints(),
+                estimatedDuration: self.estimatedDuration(),
+                startingTime: self.startingTime() ? new Date(self.startingTime()) : null,
+                dueDate: self.dueDate() ? new Date(self.dueDate()) : null,
+                status: self.status(),
+                panelId: self.panelId() 
+            });
+        }
+        self.removeCheckpoint = function(checkpoint) {
+            var i = self.checkpoints().indexOf(checkpoint);
+            self.checkpoints().splice(i, 1);
+            tasksViewModel.edit(self.task, {
+                id: self.id(),
+                title: self.title(),
+                description: self.description(),
+                location: self.location(),
+                checkpoints: self.checkpoints(),
                 estimatedDuration: self.estimatedDuration(),
                 startingTime: self.startingTime() ? new Date(self.startingTime()) : null,
                 dueDate: self.dueDate() ? new Date(self.dueDate()) : null,
@@ -381,6 +483,7 @@
     ko.applyBindings(addTaskViewModel, $('#add')[0]);
     ko.applyBindings(editTaskViewModel, $('#edit')[0]);
     ko.applyBindings(editTaskViewModel, $('#changeStatus')[0]);
+    ko.applyBindings(editTaskViewModel, $('#addCheckpoint')[0]);
     </script>
 </body>
 </html>
